@@ -2,12 +2,17 @@ package com.cs.dispatcher;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cs.entity.response.Article;
+import com.cs.entity.response.Image;
+import com.cs.entity.response.ImageMessage;
 import com.cs.entity.response.NewsMessage;
 import com.cs.entity.response.TextMessage;
+import com.cs.util.HttpPostUploadUtil;
 import com.cs.util.MessageUtil;
 
 public class MsgDispatcher {
@@ -19,11 +24,44 @@ public class MsgDispatcher {
 		txtmsg.setFromUserName(mpid);
 		txtmsg.setCreateTime(new Date().getTime());
 		txtmsg.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_TEXT);
+		
+		ImageMessage imgmsg = new ImageMessage();
+		imgmsg.setToUserName(openid);
+		imgmsg.setFromUserName(mpid);
+		imgmsg.setCreateTime(new Date().getTime());
+		imgmsg.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_Image);
 		if (map.get("MsgType").equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) { // 文本消息
 			System.out.println("==============这是文本消息！");
 			// 普通文本消息
 			if (map.get("MsgType").equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) { // 文本消息
-				txtmsg.setContent("你好，这里是你双哥的个人账号！");
+				String content=map.get("Content");
+				switch (content) {
+				case "1":
+					txtmsg.setContent("1");
+					break;
+				case "2":
+					txtmsg.setContent("2");
+					break;
+				case "3":
+					Image img = new Image();
+					HttpPostUploadUtil util=new HttpPostUploadUtil();
+				    String filepath="D:\\face.jpg";  
+				    Map<String, String> textMap = new HashMap<String, String>();  
+				    textMap.put("name", "testname");  
+				    Map<String, String> fileMap = new HashMap<String, String>();  
+				    fileMap.put("userfile", filepath); 
+				    String mediaidrs = util.formUpload(textMap, fileMap);
+				    System.out.println(mediaidrs);
+				    String mediaid=JSONObject.parseObject(mediaidrs).getString("media_id");
+				    img.setMediaId(mediaid);
+				    imgmsg.setImage(img);
+				    return MessageUtil.imageMessageToXml(imgmsg);
+				default:
+					txtmsg.setContent("你好，这里是你双哥的个人账号！");
+					break;
+				}
+				
+				
 				return MessageUtil.textMessageToXml(txtmsg);
 			}
 		}

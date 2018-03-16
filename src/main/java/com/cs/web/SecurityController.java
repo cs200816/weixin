@@ -59,6 +59,7 @@ public class SecurityController extends BaseController {
 
 	/**
 	 * 接收微信端消息处理并做分发
+	 * 
 	 * @param request
 	 * @param response
 	 */
@@ -67,13 +68,13 @@ public class SecurityController extends BaseController {
 		try {
 			Map<String, String> map = MessageUtil.parseXml(request);
 			String msgtype = map.get("MsgType");
+			String respXML = "";
 			if (MessageUtil.REQ_MESSAGE_TYPE_EVENT.equals(msgtype)) {
-				EventDispatcher.processEvent(map); // 进入事件处理
+				respXML = EventDispatcher.processEvent(map); // 进入事件处理
 			} else {
-				MsgDispatcher.processMessage(map); // 进入消息处理
+				respXML = MsgDispatcher.processMessage(map); // 进入消息处理
 			}
 			response.setCharacterEncoding("utf-8");
-			String respXML = MsgDispatcher.processMessage(map); // 
 			PrintWriter out = response.getWriter();
 			out.print(respXML);
 			out.flush();
